@@ -2,133 +2,127 @@ import chalk from 'chalk';
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// ── Pixel palette ─────────────────────────────────────────────────────────────
+const OO = chalk.bgHex('#C97B5A')('  '); // orange body
+const DD = chalk.bgHex('#2D1A0E')('  '); // dark eyes / buttons
+const __ = '  ';                          // transparent (terminal bg shows through)
+
+// ── Claude Code pixel robot — 6×6 pixels, 2 terminal chars per pixel ──────────
+//    Each pixel is 2 chars wide so it appears squarish in monospace fonts.
+//
+//    Visual (O=orange, D=dark, _=empty):
+//      _ O O O O _
+//      _ O D O D _   ← eyes
+//      _ O O O O _
+//      O O O O O O
+//      O O D D O O   ← belly buttons
+//      _ O _ _ O _   ← legs
+//
+const BOT = [
+  [__, OO, OO, OO, OO, __],
+  [__, OO, DD, OO, DD, __],
+  [__, OO, OO, OO, OO, __],
+  [OO, OO, OO, OO, OO, OO],
+  [OO, OO, DD, DD, OO, OO],
+  [__, OO, __, __, OO, __],
+];
+
+const W_BOT = 12; // 6 pixels × 2 chars
+const H_BOT = BOT.length;
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function easeInOut(t) {
   return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }
 
-// Clear n lines and reposition cursor at the top of that block
+// Move cursor up n lines, clear each line, reposition at top
 function clearBlock(n) {
   process.stdout.write(`\x1b[${n}A`);
-  for (let i = 0; i < n; i++) {
-    process.stdout.write('\x1b[2K\n');
-  }
+  for (let i = 0; i < n; i++) process.stdout.write('\x1b[2K\n');
   process.stdout.write(`\x1b[${n}A`);
 }
 
-function printBlock(lines) {
-  for (const line of lines) {
-    process.stdout.write(line + '\n');
-  }
-}
+const rowStr = row => row.join('');
 
-function center(str, width) {
-  const pad = Math.max(0, width - str.length);
-  const l = Math.floor(pad / 2);
-  return ' '.repeat(l) + str + ' '.repeat(pad - l);
-}
-
+// ── Banner ────────────────────────────────────────────────────────────────────
 export async function showBanner() {
   if (!process.stdout.isTTY) return;
-
-  const W = 45;
-  const hr = '─'.repeat(W);
-
   const lines = [
     '',
-    chalk.bold.cyan(`  ╭${hr}╮`),
-    `  ${chalk.bold.cyan('│')}${chalk.bold.white(center('claude-accounts  v1.0.0', W))}${chalk.bold.cyan('│')}`,
-    `  ${chalk.bold.cyan('│')}${chalk.dim(center('manage multiple claude code accounts', W))}${chalk.bold.cyan('│')}`,
-    chalk.bold.cyan(`  ╰${hr}╯`),
+    '  ' + chalk.bold.white('claude-accounts'),
+    '  ' + chalk.dim('manage multiple claude code accounts'),
     '',
   ];
-
   for (const line of lines) {
     process.stdout.write(line + '\n');
-    await sleep(40);
+    await sleep(60);
   }
 }
 
+// ── Merge animation ───────────────────────────────────────────────────────────
+//
+//  Phase 1 (20 frames): Two robots slide in from opposite edges with easing
+//  Phase 2 (1 frame):   Robots touch — bodies form one continuous orange block
+//  Phase 3 (1 frame):   Yellow flash fills the merged area
+//  Phase 4 (3 frames):  Single centered robot appears (hold)
+//
 export async function showMergeAnimation() {
   if (!process.stdout.isTTY) return;
 
-  const termW = Math.min(process.stdout.columns || 80, 100);
-  const BOX_W = 12;   // visual width of each account box
-  const MERGED_W = 26; // visual width of merged result box
-  const BOX_H = 3;
+  const W = Math.min(process.stdout.columns || 80, 120);
+  if (W < 36) return;
+
+  const mid      = Math.floor(W / 2);
+  const leftEnd  = mid - W_BOT;                // left robot final x  (right edge = mid)
+  const rightEnd = mid;                         // right robot final x (left edge = mid)
+  const rBegin   = Math.min(W - W_BOT, rightEnd + leftEnd); // symmetric start
+  const singleX  = mid - Math.floor(W_BOT / 2);            // centered single robot
+
   const FRAMES = 20;
 
-  // Where the two boxes meet (touching, no gap)
-  const leftFinal  = Math.floor(termW / 2) - BOX_W; // left box stops here
-  const rightFinal = Math.floor(termW / 2);           // right box stops here
-  const rightStart = Math.min(termW - BOX_W - 1, rightFinal + BOX_W + 6);
-  const mergedX    = Math.max(0, Math.floor(termW / 2) - Math.floor(MERGED_W / 2));
+  // Reserve H_BOT lines so clearBlock works from frame 0
+  process.stdout.write('\n'.repeat(H_BOT));
 
-  if (termW < 44) return; // too narrow, skip
+  for (let f = 0; f < FRAMES + 5; f++) {
+    clearBlock(H_BOT);
 
-  // ── Box artwork (each line is exactly BOX_W=12 visual chars) ──────────────
-  // ◆ = U+25C6, │╭╰╮╯ are single-width box chars in all modern terminals
-  const b1 = [
-    chalk.cyan('╭──────────╮'),
-    chalk.cyan('│') + chalk.bold.white('  ◆  #1   ') + chalk.cyan('│'),
-    chalk.cyan('╰──────────╯'),
-  ];
-  const b2 = [
-    chalk.cyan('╭──────────╮'),
-    chalk.cyan('│') + chalk.bold.white('   #2  ◆  ') + chalk.cyan('│'),
-    chalk.cyan('╰──────────╯'),
-  ];
+    if (f >= FRAMES + 3) {
+      // ── Hold: single centered robot ──────────────────────────────────────────
+      for (const row of BOT)
+        process.stdout.write(' '.repeat(singleX) + rowStr(row) + '\n');
+      await sleep(f === FRAMES + 4 ? 600 : 80);
 
-  // ── Merged box (exactly MERGED_W=26 visual chars) ─────────────────────────
-  const mSpark = [
-    chalk.yellow('╭────────────────────────╮'),
-    chalk.yellow('│') + chalk.bold.yellow('  ✦  claude-accounts  ✦ ') + chalk.yellow('│'),
-    chalk.yellow('╰────────────────────────╯'),
-  ];
-  const mDone = [
-    chalk.green('╭────────────────────────╮'),
-    chalk.green('│') + chalk.bold.white('  ◆  claude-accounts  ◆ ') + chalk.green('│'),
-    chalk.green('╰────────────────────────╯'),
-  ];
-
-  // Reserve BOX_H lines so clearBlock works on the first frame too
-  process.stdout.write('\n'.repeat(BOX_H));
-
-  // ── Animation sequence ────────────────────────────────────────────────────
-  // Phase A: slide in (FRAMES frames)
-  // Phase B: spark flash
-  // Phase C: merged (hold)
-
-  for (let frame = 0; frame < FRAMES + 4; frame++) {
-    clearBlock(BOX_H);
-
-    if (frame >= FRAMES + 2) {
-      // Merged — hold
-      printBlock(mDone.map(l => ' '.repeat(mergedX) + l));
-      await sleep(frame === FRAMES + 3 ? 400 : 80);
-
-    } else if (frame === FRAMES + 1) {
-      // Spark flash
-      printBlock(mSpark.map(l => ' '.repeat(mergedX) + l));
-      await sleep(110);
-
-    } else if (frame === FRAMES) {
-      // First merged frame right after boxes touch
-      printBlock(mDone.map(l => ' '.repeat(mergedX) + l));
+    } else if (f === FRAMES + 2) {
+      // ── Single robot after flash ─────────────────────────────────────────────
+      for (const row of BOT)
+        process.stdout.write(' '.repeat(singleX) + rowStr(row) + '\n');
       await sleep(80);
 
-    } else {
-      // Sliding
-      const t      = easeInOut(frame / (FRAMES - 1));
-      const leftX  = Math.round(t * leftFinal);
-      const rightX = Math.round(rightStart - t * (rightStart - rightFinal));
-      const gap    = Math.max(0, rightX - leftX - BOX_W);
+    } else if (f === FRAMES + 1) {
+      // ── Flash: bright yellow rectangle covers full merge area ─────────────────
+      for (let i = 0; i < H_BOT; i++)
+        process.stdout.write(
+          ' '.repeat(leftEnd) + chalk.bgYellow(' '.repeat(W_BOT * 2)) + '\n'
+        );
+      await sleep(110);
 
-      printBlock(
-        b1.map((line, row) =>
-          ' '.repeat(leftX) + line + ' '.repeat(gap) + b2[row]
-        )
-      );
-      await sleep(frame < 5 ? 65 : frame < 14 ? 45 : 30);
+    } else if (f === FRAMES) {
+      // ── Robots touching: draw both side-by-side, bodies form one block ─────────
+      for (const row of BOT)
+        process.stdout.write(' '.repeat(leftEnd) + rowStr(row) + rowStr(row) + '\n');
+      await sleep(70);
+
+    } else {
+      // ── Sliding ───────────────────────────────────────────────────────────────
+      const t   = easeInOut(f / (FRAMES - 1));
+      const lx  = Math.round(t * leftEnd);
+      const rx  = Math.round(rBegin - t * (rBegin - rightEnd));
+      const gap = Math.max(0, rx - lx - W_BOT);
+      for (const row of BOT)
+        process.stdout.write(
+          ' '.repeat(lx) + rowStr(row) + ' '.repeat(gap) + rowStr(row) + '\n'
+        );
+      await sleep(f < 5 ? 65 : f < 13 ? 48 : 32);
     }
   }
 
