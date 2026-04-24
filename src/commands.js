@@ -96,7 +96,7 @@ export async function cmdSetup() {
 export async function cmdAdd(args) {
   const binary = getBinaryPath();
   if (!binary) {
-    br(); err('Run claude-accounts setup first.'); br(); return;
+    br(); err('Run claude-multi setup first.'); br(); return;
   }
 
   let label;
@@ -143,7 +143,7 @@ export async function cmdList() {
   br();
 
   if (accounts.length === 0) {
-    wrn('No accounts yet. Run: claude-accounts setup');
+    wrn('No accounts yet. Run: claude-multi setup');
     br(); return;
   }
 
@@ -166,10 +166,10 @@ export async function cmdRemove(args) {
   const binary   = getBinaryPath();
 
   if (accounts.length === 0) {
-    br(); err('No accounts. Run: claude-accounts setup'); br(); return;
+    br(); err('No accounts. Run: claude-multi setup'); br(); return;
   }
   if (args.length === 0) {
-    br(); err('Specify name or number. Example: claude-accounts remove work'); br(); return;
+    br(); err('Specify name or number. Example: claude-multi remove work'); br(); return;
   }
 
   const id     = args[0];
@@ -179,7 +179,7 @@ export async function cmdRemove(args) {
     : accounts.find(a => a.id === n);
 
   if (!target) {
-    br(); err(`Account "${id}" not found.`); dim('Run: claude-accounts list'); br(); return;
+    br(); err(`Account "${id}" not found.`); dim('Run: claude-multi list'); br(); return;
   }
 
   br();
@@ -222,7 +222,7 @@ export async function cmdUninstall() {
     wrn(`No managed aliases found in ${rcFile}`);
   }
   br();
-  inf('To also delete all account data:  rm -rf ~/.claude-accounts');
+  inf('To also delete all account data:  rm -rf ~/.claude-multi');
   br();
 }
 
@@ -230,7 +230,7 @@ export async function cmdUninstall() {
 
 export async function cmdHelp() {
   br();
-  console.log(chalk.bold('  claude-accounts') + chalk.dim(' — manage multiple Claude Code accounts'));
+  console.log(chalk.bold('  claude-multi') + chalk.dim(' — manage multiple Claude Code accounts'));
   br();
 
   const cmds = [
@@ -245,7 +245,7 @@ export async function cmdHelp() {
   console.log(chalk.bold('  Commands:'));
   br();
   for (const [cmd, aliases, desc] of cmds) {
-    const c = chalk.cyan(('  claude-accounts ' + cmd).padEnd(34));
+    const c = chalk.cyan(('  claude-multi ' + cmd).padEnd(34));
     const a = aliases ? chalk.dim(` (${aliases})`) : '';
     console.log(c + '  ' + desc + a);
   }
@@ -259,7 +259,7 @@ export async function cmdHelp() {
   br();
   console.log(chalk.bold('  How it works:'));
   br();
-  dim('  Each account gets its own ~/.claude-accounts/<name>/ config dir.');
+  dim('  Each account gets its own ~/.claude-multi/<name>/ config dir.');
   dim('  Shell aliases set CLAUDE_CONFIG_DIR before launching the binary.');
   dim('  Sessions are 100% isolated — login, history, settings all separate.');
   br();

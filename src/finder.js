@@ -4,7 +4,7 @@ import os from 'os';
 import path from 'path';
 import { createRequire } from 'module';
 
-const MARKER = 'claude-accounts-managed';
+const MARKER = 'claude-multi-managed';
 
 function isManagedWrapper(filePath) {
   try {

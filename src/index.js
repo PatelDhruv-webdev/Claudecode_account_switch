@@ -41,7 +41,7 @@ export async function run(argv) {
         break;
       default:
         console.error(`Unknown command: ${command}`);
-        console.error('Run: claude-accounts help');
+        console.error('Run: claude-multi help');
         process.exit(1);
     }
   } catch (error) {

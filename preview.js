@@ -61,7 +61,7 @@ function singleRobot(x) {
 function finalFrame() {
   return BOT.map((row, i) => {
     let line = `${sp(finalX)}${robotRow(row)}`;
-    if (i === 1) line += `<span class="gap"></span><b class="title">claude-accounts</b><span class="ver">  v1.0.0</span>`;
+    if (i === 1) line += `<span class="gap"></span><b class="title">claude-multi</b><span class="ver">  v1.0.0</span>`;
     if (i === 3) line += `<span class="gap"></span><span class="sub">manage multiple accounts</span>`;
     return line;
   });
@@ -75,7 +75,7 @@ const rightEnd = mid;                      // 40
 const rBegin   = Math.min(W - W_BOT, rightEnd + leftEnd); // 68
 const singleX  = mid - Math.floor(W_BOT / 2); // 34
 
-const TITLE_LEN = 2 + 'claude-accounts'.length + '  v1.0.0'.length; // 27
+const TITLE_LEN = 2 + 'claude-multi'.length + '  v1.0.0'.length; // 27
 const finalX    = Math.max(2, Math.floor((W - W_BOT - TITLE_LEN) / 2)); // 20
 
 function frameAt(f) {
@@ -114,8 +114,8 @@ function terminalBlock(label, rows, isPrompt = false) {
       <div class="pline"> </div>
       <div class="pline"><span class="ok">  ✓ </span><span class="out">Setup complete!</span></div>
       <div class="pline"> </div>
-      <div class="pline"><span class="ok">  ✓ </span><span class="col">claude-personal</span><span class="dim">  →  ~/.claude-accounts/personal</span></div>
-      <div class="pline"><span class="ok">  ✓ </span><span class="col">claude-work</span><span class="dim">  →  ~/.claude-accounts/work</span></div>
+      <div class="pline"><span class="ok">  ✓ </span><span class="col">claude-personal</span><span class="dim">  →  ~/.claude-multi/personal</span></div>
+      <div class="pline"><span class="ok">  ✓ </span><span class="col">claude-work</span><span class="dim">  →  ~/.claude-multi/work</span></div>
       <div class="pline"> </div>
       <div class="pline"><span class="arrow">  → </span><span class="out">Shell aliases written to: <b>~/.zshrc</b></span></div>
       <div class="pline"> </div>
@@ -147,7 +147,7 @@ const html = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>claude-accounts — terminal animation preview</title>
+<title>claude-multi — terminal animation preview</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -230,9 +230,9 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
 
-<h1>claude-accounts — animation preview</h1>
+<h1>claude-multi — animation preview</h1>
 <p class="subtitle">
-  What you see when you run <code>claude-accounts setup</code> in a truecolor terminal
+  What you see when you run <code>claude-multi setup</code> in a truecolor terminal
   (macOS Terminal · iTerm2 · VS Code · Windows Terminal)
 </p>
 

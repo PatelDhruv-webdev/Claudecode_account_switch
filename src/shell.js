@@ -2,8 +2,8 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-const BLOCK_START = '# claude-accounts-managed — added by claude-accounts CLI';
-const BLOCK_END   = '# end claude-accounts-managed';
+const BLOCK_START = '# claude-multi-managed — added by claude-multi CLI';
+const BLOCK_END   = '# end claude-multi-managed';
 
 export function detectShellRc() {
   const shell = process.env.SHELL || '';
@@ -28,7 +28,7 @@ export function buildAliasBlock(accounts, binaryPath) {
 
 function stripManagedBlock(content) {
   return content.replace(
-    /\n?# claude-accounts-managed[^\n]*\n[\s\S]*?# end claude-accounts-managed\n?/g,
+    /\n?# claude-multi-managed[^\n]*\n[\s\S]*?# end claude-multi-managed\n?/g,
     ''
   );
 }

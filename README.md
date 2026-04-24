@@ -1,4 +1,4 @@
-# claude-accounts
+# claude-multi
 
 A CLI tool that automates the [multiple-Claude-accounts setup](https://medium.com/@buwanekasumanasekara/setting-up-multiple-claude-code-accounts-on-your-local-machine-f8769a36d1b1) so you can run two (or more) Claude Code sessions **simultaneously** in separate terminal tabs — each with its own isolated login session.
 
@@ -7,7 +7,7 @@ A CLI tool that automates the [multiple-Claude-accounts setup](https://medium.co
 ## Install
 
 ```bash
-npm install -g claude-accounts
+npm install -g claude-multi
 ```
 
 ---
@@ -16,7 +16,7 @@ npm install -g claude-accounts
 
 ```bash
 # 1. Run the interactive setup (animated!)
-claude-accounts setup
+claude-multi setup
 
 # 2. Reload your shell
 source ~/.zshrc   # or source ~/.bashrc
@@ -38,12 +38,12 @@ Both sessions are 100% isolated — separate logins, separate history, separate 
 
 | Command | Aliases | What it does |
 |---|---|---|
-| `claude-accounts setup` | `install` | Animated setup: names your accounts, writes shell aliases to .zshrc |
-| `claude-accounts add [name]` | `new`, `create` | Add another account |
-| `claude-accounts list` | `ls` | Show all accounts and whether each is logged in |
-| `claude-accounts remove <name>` | `rm` | Delete an account and its config dir |
-| `claude-accounts uninstall` | | Remove all managed aliases from .zshrc / .bashrc |
-| `claude-accounts help` | `--help`, `-h` | Show usage |
+| `claude-multi setup` | `install` | Animated setup: names your accounts, writes shell aliases to .zshrc |
+| `claude-multi add [name]` | `new`, `create` | Add another account |
+| `claude-multi list` | `ls` | Show all accounts and whether each is logged in |
+| `claude-multi remove <name>` | `rm` | Delete an account and its config dir |
+| `claude-multi uninstall` | | Remove all managed aliases from .zshrc / .bashrc |
+| `claude-multi help` | `--help`, `-h` | Show usage |
 
 ---
 
@@ -51,15 +51,15 @@ Both sessions are 100% isolated — separate logins, separate history, separate 
 
 Claude Code stores its login session in `~/.claude` by default. Set `CLAUDE_CONFIG_DIR` to any path and Claude uses that directory instead — completely independent from any other account.
 
-`claude-accounts setup` automates all the manual steps:
+`claude-multi setup` automates all the manual steps:
 
 1. Finds your real `claude` binary path automatically
-2. Creates `~/.claude-accounts/<name>/` for each account
+2. Creates `~/.claude-multi/<name>/` for each account
 3. Writes shell aliases to `.zshrc` / `.bashrc`:
 
 ```bash
-alias claude-personal='CLAUDE_CONFIG_DIR=~/.claude-accounts/personal /usr/local/bin/claude'
-alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-accounts/work /usr/local/bin/claude'
+alias claude-personal='CLAUDE_CONFIG_DIR=~/.claude-multi/personal /usr/local/bin/claude'
+alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-multi/work /usr/local/bin/claude'
 alias claude='echo "Use a specific account: claude-personal, claude-work"'
 ```
 
@@ -86,7 +86,7 @@ Both run simultaneously. One account hitting a rate limit doesn't affect the oth
 ## Add more accounts
 
 ```bash
-claude-accounts add freelance
+claude-multi add freelance
 source ~/.zshrc
 claude-freelance   # then /login
 ```
@@ -98,7 +98,7 @@ claude-freelance   # then /login
 Add this to your project's `.env` (works with `direnv` or similar):
 
 ```bash
-CLAUDE_CONFIG_DIR=~/.claude-accounts/work
+CLAUDE_CONFIG_DIR=~/.claude-multi/work
 ```
 
 Claude Code will automatically use the `work` account in that project.
@@ -109,13 +109,13 @@ Claude Code will automatically use the `work` account in that project.
 
 ```bash
 # Remove aliases from .zshrc / .bashrc
-claude-accounts uninstall
+claude-multi uninstall
 
 # Remove all account data (optional)
-rm -rf ~/.claude-accounts
+rm -rf ~/.claude-multi
 
 # Remove the npm package
-npm uninstall -g claude-accounts
+npm uninstall -g claude-multi
 ```
 
 ---

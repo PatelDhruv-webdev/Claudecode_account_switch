@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 
-export const ACCOUNTS_ROOT = path.join(os.homedir(), '.claude-accounts');
+export const ACCOUNTS_ROOT = path.join(os.homedir(), '.claude-multi');
 
 const REGISTRY_FILE = path.join(ACCOUNTS_ROOT, 'registry.json');
 const BINARY_FILE   = path.join(ACCOUNTS_ROOT, '.binary');

@@ -60,7 +60,7 @@ export async function showBanner() {
 //  Phase 3  (1 frame)       : yellow flash fills the merged area
 //  Phase 4  (3+ frames)     : final frame styled like the Claude Code startup:
 //
-//        [robot]  claude-accounts  v1.0.0
+//        [robot]  claude-multi  v1.0.0
 //                 manage multiple accounts
 //
 export async function showMergeAnimation() {
@@ -75,9 +75,9 @@ export async function showMergeAnimation() {
   const rBegin   = Math.min(W - W_BOT, rightEnd + leftEnd); // symmetric start
 
   // Final display: robot + title text side-by-side, centered as a unit
-  const titleText = 'claude-accounts';
+  const titleText = 'claude-multi';
   const subText   = 'manage multiple accounts';
-  const TITLE_LEN = 2 + titleText.length + 2 + '  v1.0.0'.length; // "  claude-accounts  v1.0.0"
+  const TITLE_LEN = 2 + titleText.length + 2 + '  v1.0.0'.length; // "  claude-multi  v1.0.0"
   const totalW    = W_BOT + TITLE_LEN;
   const finalX    = Math.max(2, Math.floor((W - totalW) / 2));
 
