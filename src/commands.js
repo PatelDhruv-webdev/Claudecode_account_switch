@@ -1,15 +1,10 @@
 import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 
 import {
-  ACCOUNTS_ROOT,
   readRegistry,
   writeRegistry,
-  getActive,
-  setActive,
   getBinaryPath,
   setBinaryPath,
   accountDir,
@@ -17,7 +12,8 @@ import {
   toSlug,
 } from './registry.js';
 import { findClaudeBinary } from './finder.js';
-import { writeShellFunction, removeShellFunction, detectShellRc } from './shell.js';
+import { writeAliases, removeAliases, detectShellRc } from './shell.js';
+import { showBanner, showMergeAnimation } from './animation.js';
 
 const ok  = msg => console.log(chalk.green('  ✓ ') + msg);
 const inf = msg => console.log(chalk.cyan('  → ') + msg);
@@ -29,95 +25,114 @@ const br  = ()  => console.log('');
 // ─── setup ────────────────────────────────────────────────────────────────────
 
 export async function cmdSetup() {
-  br();
-  inf('Setting up claude-accounts...');
-  br();
+  await showBanner();
+  await showMergeAnimation();
 
   // Find binary
-  inf('Searching for claude binary...');
+  inf('Searching for Claude Code binary...');
   const binary = findClaudeBinary();
-
   if (!binary) {
+    br();
     err('Claude Code binary not found.');
-    dim('Install Claude Code first: npm install -g @anthropic-ai/claude-code');
+    dim('Install it first:  npm install -g @anthropic-ai/claude-code');
     br();
     process.exit(1);
   }
+  ok(`Found: ${chalk.dim(binary)}`);
+  br();
 
-  ok(`Found binary: ${binary}`);
+  // Ask for two account names
+  const { name1 } = await inquirer.prompt([{
+    type: 'input',
+    name: 'name1',
+    message: 'Name for account 1 (e.g. "personal"):',
+    default: 'personal',
+    validate: v => v.trim().length > 0 ? true : 'Name cannot be empty',
+  }]);
+
+  const { name2 } = await inquirer.prompt([{
+    type: 'input',
+    name: 'name2',
+    message: 'Name for account 2 (e.g. "work"):',
+    default: 'work',
+    validate: v => {
+      if (!v.trim()) return 'Name cannot be empty';
+      if (toSlug(v.trim()) === toSlug(name1.trim())) return 'Must be different from account 1';
+      return true;
+    },
+  }]);
+
+  const accounts = [
+    { id: 1, label: name1.trim(), slug: toSlug(name1.trim()), dir: accountDir(toSlug(name1.trim())), createdAt: new Date().toISOString() },
+    { id: 2, label: name2.trim(), slug: toSlug(name2.trim()), dir: accountDir(toSlug(name2.trim())), createdAt: new Date().toISOString() },
+  ];
+
+  // Create dirs, save registry, write aliases
+  for (const a of accounts) fs.mkdirSync(a.dir, { recursive: true });
   setBinaryPath(binary);
-
-  // Create accounts root
-  if (!fs.existsSync(ACCOUNTS_ROOT)) {
-    fs.mkdirSync(ACCOUNTS_ROOT, { recursive: true });
-    ok(`Created ${ACCOUNTS_ROOT}`);
-  } else {
-    ok(`Directory exists: ${ACCOUNTS_ROOT}`);
-  }
-
-  // Write shell function
-  const { rcFile, alreadyInstalled } = writeShellFunction();
-  if (alreadyInstalled) {
-    wrn(`Shell function already installed in ${rcFile}`);
-  } else {
-    ok(`Shell function written to ${rcFile}`);
-  }
+  writeRegistry(accounts);
+  const { rcFile } = writeAliases(accounts, binary);
 
   br();
-  ok('Setup complete!');
+  ok(chalk.bold('Setup complete!'));
   br();
-  dim('Next steps:');
-  dim('  1. Reload your shell:  source ' + detectShellRc());
-  dim('  2. Add an account:     claude-accounts add');
-  dim('  3. Switch account:     claude-accounts use 1');
-  dim('  4. Launch Claude:      claude');
+  for (const a of accounts) {
+    ok(`${chalk.cyan('claude-' + a.slug)}  →  ${chalk.dim(a.dir)}`);
+  }
+  br();
+  inf(`Shell aliases written to: ${chalk.bold(rcFile)}`);
+  br();
+  console.log(chalk.bold('  Next steps:'));
+  br();
+  dim(`1. Reload your shell:      source ${detectShellRc()}`);
+  dim(`2. Authenticate account 1: claude-${accounts[0].slug}   then run  /login`);
+  dim(`3. Authenticate account 2: claude-${accounts[1].slug}   then run  /login`);
+  dim(`4. Code in parallel:       open two terminal tabs and run each!`);
   br();
 }
 
 // ─── add ──────────────────────────────────────────────────────────────────────
 
-export async function cmdAdd() {
-  br();
-  const { label } = await inquirer.prompt([
-    {
+export async function cmdAdd(args) {
+  const binary = getBinaryPath();
+  if (!binary) {
+    br(); err('Run claude-accounts setup first.'); br(); return;
+  }
+
+  let label;
+  if (args.length > 0) {
+    label = args.join(' ');
+  } else {
+    br();
+    const res = await inquirer.prompt([{
       type: 'input',
       name: 'label',
-      message: 'Account label (e.g. "personal" or "work"):',
-      validate: v => v.trim().length > 0 ? true : 'Label cannot be empty',
-    },
-  ]);
+      message: 'Name for new account:',
+      validate: v => v.trim().length > 0 ? true : 'Name cannot be empty',
+    }]);
+    label = res.label;
+  }
 
-  const trimmed = label.trim();
-  const slug = toSlug(trimmed);
+  const slug     = toSlug(label.trim());
   const accounts = readRegistry();
 
   if (accounts.find(a => a.slug === slug)) {
-    br();
-    err(`An account with slug "${slug}" already exists.`);
-    dim('Use a different label, or run: claude-accounts list');
-    br();
-    return;
+    br(); err(`Account "claude-${slug}" already exists.`); br(); return;
   }
 
   const dir = accountDir(slug);
   fs.mkdirSync(dir, { recursive: true });
 
-  const account = {
-    id: accounts.length + 1,
-    label: trimmed,
-    slug,
-    dir,
-    createdAt: new Date().toISOString(),
-  };
-
-  accounts.push(account);
+  accounts.push({ id: accounts.length + 1, label: label.trim(), slug, dir, createdAt: new Date().toISOString() });
   writeRegistry(accounts);
+  writeAliases(accounts, binary);
 
   br();
-  ok(`Account "${trimmed}" created (slug: ${slug})`);
-  dim(`Config dir: ${dir}`);
+  ok(`Added ${chalk.cyan('claude-' + slug)}`);
+  ok(`Config dir: ${chalk.dim(dir)}`);
   br();
-  inf(`To activate: claude-accounts use ${account.id}`);
+  inf(`Run: source ${detectShellRc()}`);
+  inf(`Then: claude-${slug}  →  /login`);
   br();
 }
 
@@ -125,110 +140,22 @@ export async function cmdAdd() {
 
 export async function cmdList() {
   const accounts = readRegistry();
-  const active = getActive();
-
   br();
+
   if (accounts.length === 0) {
-    wrn('No accounts yet. Run: claude-accounts add');
-    br();
-    return;
+    wrn('No accounts yet. Run: claude-accounts setup');
+    br(); return;
   }
 
   console.log(chalk.bold('  Accounts:'));
   br();
-
   for (const a of accounts) {
-    const isActive = active && active.slug === a.slug;
-    const loggedIn = isLoggedIn(a.slug);
-    const marker = isActive ? chalk.green(' ▶ ') : '   ';
-    const badge = loggedIn ? chalk.green('[logged in]') : chalk.dim('[not logged in]');
-    const name = isActive ? chalk.green(chalk.bold(a.label)) : a.label;
-    console.log(`${marker}${chalk.dim(a.id + '.')} ${name} ${badge}`);
+    const badge = isLoggedIn(a.slug) ? chalk.green('[logged in]') : chalk.dim('[not logged in]');
+    console.log(`  ${chalk.dim(a.id + '.')} ${chalk.cyan('claude-' + a.slug)} ${badge}`);
     dim(`dir: ${a.dir}`);
   }
-
   br();
-  if (active) {
-    inf(`Active: ${active.label}`);
-  } else {
-    wrn('No active account. Run: claude-accounts use <n>');
-  }
-  br();
-}
-
-// ─── use ──────────────────────────────────────────────────────────────────────
-
-export async function cmdUse(args) {
-  const accounts = readRegistry();
-
-  if (accounts.length === 0) {
-    br();
-    err('No accounts found. Run: claude-accounts add');
-    br();
-    return;
-  }
-
-  let target;
-
-  if (args.length > 0) {
-    const n = parseInt(args[0], 10);
-    target = isNaN(n) ? accounts.find(a => a.slug === args[0] || a.label === args[0])
-                      : accounts.find(a => a.id === n);
-    if (!target) {
-      br();
-      err(`Account "${args[0]}" not found.`);
-      dim('Run: claude-accounts list');
-      br();
-      return;
-    }
-  } else {
-    br();
-    const { chosen } = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'chosen',
-        message: 'Select account to activate:',
-        choices: accounts.map(a => ({
-          name: `${a.id}. ${a.label}${isLoggedIn(a.slug) ? chalk.green(' [logged in]') : chalk.dim(' [not logged in]')}`,
-          value: a,
-        })),
-      },
-    ]);
-    target = chosen;
-  }
-
-  setActive(target.slug);
-  br();
-  ok(`Switched to account: ${chalk.bold(target.label)}`);
-  dim(`Config dir: ${target.dir}`);
-  br();
-  if (!isLoggedIn(target.slug)) {
-    inf('This account has no session yet. Run: claude  then  /login');
-  }
-  br();
-}
-
-// ─── status ───────────────────────────────────────────────────────────────────
-
-export async function cmdStatus() {
-  const active = getActive();
-  const binary = getBinaryPath();
-
-  br();
-  if (!active) {
-    wrn('No active account.');
-    dim('Run: claude-accounts use <n>');
-    br();
-    return;
-  }
-
-  console.log(chalk.bold('  Active account:'));
-  br();
-  inf(`Label:   ${chalk.bold(active.label)}`);
-  inf(`Slug:    ${active.slug}`);
-  inf(`Dir:     ${active.dir}`);
-  inf(`Login:   ${isLoggedIn(active.slug) ? chalk.green('logged in') : chalk.dim('not logged in')}`);
-  if (binary) inf(`Binary:  ${binary}`);
+  inf('Open each in a separate terminal tab to run both simultaneously!');
   br();
 }
 
@@ -236,72 +163,51 @@ export async function cmdStatus() {
 
 export async function cmdRemove(args) {
   const accounts = readRegistry();
+  const binary   = getBinaryPath();
 
   if (accounts.length === 0) {
-    br();
-    err('No accounts found. Run: claude-accounts add');
-    br();
-    return;
+    br(); err('No accounts. Run: claude-accounts setup'); br(); return;
   }
-
   if (args.length === 0) {
-    br();
-    err('Specify account number. Example: claude-accounts remove 2');
-    dim('Run: claude-accounts list  to see account numbers');
-    br();
-    return;
+    br(); err('Specify name or number. Example: claude-accounts remove work'); br(); return;
   }
 
-  const n = parseInt(args[0], 10);
-  const target = isNaN(n) ? accounts.find(a => a.slug === args[0] || a.label === args[0])
-                           : accounts.find(a => a.id === n);
+  const id     = args[0];
+  const n      = parseInt(id, 10);
+  const target = isNaN(n)
+    ? accounts.find(a => a.slug === toSlug(id) || a.slug === id)
+    : accounts.find(a => a.id === n);
 
   if (!target) {
-    br();
-    err(`Account "${args[0]}" not found.`);
-    dim('Run: claude-accounts list');
-    br();
-    return;
+    br(); err(`Account "${id}" not found.`); dim('Run: claude-accounts list'); br(); return;
   }
 
   br();
-  wrn(`About to delete account "${target.label}" and its config directory.`);
-  dim(`Dir: ${target.dir}`);
+  wrn(`About to delete claude-${target.slug} and its config dir.`);
   br();
 
-  const { confirmed } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmed',
-      message: `Delete account "${target.label}"?`,
-      default: false,
-    },
-  ]);
+  const { confirmed } = await inquirer.prompt([{
+    type: 'confirm',
+    name: 'confirmed',
+    message: `Delete claude-${target.slug}?`,
+    default: false,
+  }]);
 
-  if (!confirmed) {
-    br();
-    inf('Cancelled.');
-    br();
-    return;
-  }
+  if (!confirmed) { br(); inf('Cancelled.'); br(); return; }
 
-  if (fs.existsSync(target.dir)) {
-    fs.rmSync(target.dir, { recursive: true, force: true });
-  }
+  if (fs.existsSync(target.dir)) fs.rmSync(target.dir, { recursive: true, force: true });
 
-  const remaining = accounts.filter(a => a.slug !== target.slug)
+  const remaining = accounts
+    .filter(a => a.slug !== target.slug)
     .map((a, i) => ({ ...a, id: i + 1 }));
   writeRegistry(remaining);
-
-  const active = getActive();
-  if (active && active.slug === target.slug) {
-    const activeFile = path.join(ACCOUNTS_ROOT, '.active');
-    if (fs.existsSync(activeFile)) fs.unlinkSync(activeFile);
-    wrn('Removed active account. Run: claude-accounts use <n>  to set a new one.');
-  }
+  if (binary) writeAliases(remaining, binary);
 
   br();
-  ok(`Account "${target.label}" removed.`);
+  ok(`Removed claude-${target.slug}`);
+  if (remaining.length > 0) inf(`Remaining: ${remaining.map(a => chalk.cyan('claude-' + a.slug)).join(', ')}`);
+  br();
+  inf(`Run: source ${detectShellRc()}`);
   br();
 }
 
@@ -309,15 +215,14 @@ export async function cmdRemove(args) {
 
 export async function cmdUninstall() {
   br();
-  const { removed, rcFile } = removeShellFunction();
+  const { removed, rcFile } = removeAliases();
   if (removed) {
-    ok(`Shell function removed from ${rcFile}`);
+    ok(`Aliases removed from ${rcFile}`);
   } else {
-    wrn(`Shell function not found in ${rcFile}`);
+    wrn(`No managed aliases found in ${rcFile}`);
   }
   br();
-  inf('To fully remove, also delete ~/.claude-accounts/');
-  dim('  rm -rf ~/.claude-accounts');
+  inf('To also delete all account data:  rm -rf ~/.claude-accounts');
   br();
 }
 
@@ -327,38 +232,35 @@ export async function cmdHelp() {
   br();
   console.log(chalk.bold('  claude-accounts') + chalk.dim(' — manage multiple Claude Code accounts'));
   br();
-  console.log(chalk.bold('  Usage:'));
-  br();
 
-  const commands = [
-    ['setup', 'install', 'Find claude binary and install shell function'],
-    ['add', 'new, create', 'Add a new account'],
-    ['list', 'ls', 'List all accounts'],
-    ['use [n]', 'switch, activate', 'Switch active account (interactive if no arg)'],
-    ['status', 'current, whoami', 'Show currently active account'],
-    ['remove <n>', 'delete, rm', 'Delete an account and its config dir'],
-    ['uninstall', '', 'Remove shell function from .zshrc / .bashrc'],
-    ['help', '--help, -h', 'Show this help message'],
+  const cmds = [
+    ['setup',         '',         'Animated setup: name accounts, write aliases to .zshrc'],
+    ['add [name]',    '',         'Add another account'],
+    ['list',          'ls',       'Show all accounts and login status'],
+    ['remove <name>', 'rm',       'Delete an account and its config dir'],
+    ['uninstall',     '',         'Remove all aliases from .zshrc / .bashrc'],
+    ['help',          '--help -h','Show this message'],
   ];
 
-  for (const [cmd, aliases, desc] of commands) {
-    const cmdStr = chalk.cyan(('  claude-accounts ' + cmd).padEnd(30));
-    const aliasStr = aliases ? chalk.dim(' (' + aliases + ')') : '';
-    console.log(cmdStr + '  ' + desc + aliasStr);
+  console.log(chalk.bold('  Commands:'));
+  br();
+  for (const [cmd, aliases, desc] of cmds) {
+    const c = chalk.cyan(('  claude-accounts ' + cmd).padEnd(34));
+    const a = aliases ? chalk.dim(` (${aliases})`) : '';
+    console.log(c + '  ' + desc + a);
   }
 
   br();
+  console.log(chalk.bold('  After setup — run in parallel in separate tabs:'));
+  br();
+  dim('  claude-personal     launches Claude with your personal account');
+  dim('  claude-work         launches Claude with your work account');
+  dim('  claude              prints reminder to use the above');
+  br();
   console.log(chalk.bold('  How it works:'));
   br();
-  dim('Each account gets its own config directory under ~/.claude-accounts/<slug>/');
-  dim('A shell function intercepts "claude" and sets CLAUDE_CONFIG_DIR accordingly.');
-  br();
-  console.log(chalk.bold('  Quick start:'));
-  br();
-  dim('  1. claude-accounts setup     # install shell function');
-  dim('  2. source ~/.zshrc           # reload shell');
-  dim('  3. claude-accounts add       # add your first account');
-  dim('  4. claude-accounts use 1     # activate it');
-  dim('  5. claude                    # launch Claude and run /login');
+  dim('  Each account gets its own ~/.claude-accounts/<name>/ config dir.');
+  dim('  Shell aliases set CLAUDE_CONFIG_DIR before launching the binary.');
+  dim('  Sessions are 100% isolated — login, history, settings all separate.');
   br();
 }

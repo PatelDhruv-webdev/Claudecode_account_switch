@@ -5,13 +5,10 @@ import path from 'path';
 export const ACCOUNTS_ROOT = path.join(os.homedir(), '.claude-accounts');
 
 const REGISTRY_FILE = path.join(ACCOUNTS_ROOT, 'registry.json');
-const ACTIVE_FILE = path.join(ACCOUNTS_ROOT, '.active');
-const BINARY_FILE = path.join(ACCOUNTS_ROOT, '.binary');
+const BINARY_FILE   = path.join(ACCOUNTS_ROOT, '.binary');
 
 function ensureRoot() {
-  if (!fs.existsSync(ACCOUNTS_ROOT)) {
-    fs.mkdirSync(ACCOUNTS_ROOT, { recursive: true });
-  }
+  fs.mkdirSync(ACCOUNTS_ROOT, { recursive: true });
 }
 
 export function readRegistry() {
@@ -27,18 +24,6 @@ export function readRegistry() {
 export function writeRegistry(accounts) {
   ensureRoot();
   fs.writeFileSync(REGISTRY_FILE, JSON.stringify(accounts, null, 2), 'utf8');
-}
-
-export function getActive() {
-  if (!fs.existsSync(ACTIVE_FILE)) return null;
-  const slug = fs.readFileSync(ACTIVE_FILE, 'utf8').trim();
-  const accounts = readRegistry();
-  return accounts.find(a => a.slug === slug) || null;
-}
-
-export function setActive(slug) {
-  ensureRoot();
-  fs.writeFileSync(ACTIVE_FILE, slug, 'utf8');
 }
 
 export function getBinaryPath() {

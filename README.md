@@ -1,6 +1,6 @@
 # claude-accounts
 
-Manage multiple [Claude Code](https://claude.ai/code) accounts by switching `CLAUDE_CONFIG_DIR` between isolated config directories.
+A CLI tool that automates the [multiple-Claude-accounts setup](https://medium.com/@buwanekasumanasekara/setting-up-multiple-claude-code-accounts-on-your-local-machine-f8769a36d1b1) so you can run two (or more) Claude Code sessions **simultaneously** in separate terminal tabs — each with its own isolated login session.
 
 ---
 
@@ -15,22 +15,22 @@ npm install -g claude-accounts
 ## Quick start
 
 ```bash
-# 1. Run setup (finds claude binary, installs shell function)
+# 1. Run the interactive setup (animated!)
 claude-accounts setup
 
 # 2. Reload your shell
 source ~/.zshrc   # or source ~/.bashrc
 
-# 3. Add two accounts
-claude-accounts add    # enter "personal" when prompted
-claude-accounts add    # enter "work" when prompted
+# 3. Authenticate each account (do this once per account)
+claude-personal   # launches Claude → run /login
+claude-work       # launches Claude → run /login
 
-# 4. Activate the first account and log in
-claude-accounts use 1
-claude             # then run /login inside Claude Code
+# 4. Code in parallel — open two terminal tabs:
+#   Tab 1: claude-personal
+#   Tab 2: claude-work
 ```
 
-From now on, `claude` is intercepted by a shell function that sets `CLAUDE_CONFIG_DIR` to the active account's isolated directory before launching the real binary.
+Both sessions are 100% isolated — separate logins, separate history, separate settings.
 
 ---
 
@@ -38,74 +38,83 @@ From now on, `claude` is intercepted by a shell function that sets `CLAUDE_CONFI
 
 | Command | Aliases | What it does |
 |---|---|---|
-| `claude-accounts setup` | `install` | Find binary, create dirs, write shell function to .zshrc |
-| `claude-accounts add` | `new`, `create` | Prompt for label, create config dir, add to registry |
-| `claude-accounts list` | `ls` | Print all accounts with active marker and login status |
-| `claude-accounts use [n]` | `switch`, `activate` | Set active account (interactive picker if no arg) |
-| `claude-accounts status` | `current`, `whoami` | Show active account info |
-| `claude-accounts remove <n>` | `delete`, `rm` | Delete config dir and remove from registry |
-| `claude-accounts uninstall` | | Remove shell function from .zshrc / .bashrc |
-| `claude-accounts help` | `--help`, `-h` | Print usage |
+| `claude-accounts setup` | `install` | Animated setup: names your accounts, writes shell aliases to .zshrc |
+| `claude-accounts add [name]` | `new`, `create` | Add another account |
+| `claude-accounts list` | `ls` | Show all accounts and whether each is logged in |
+| `claude-accounts remove <name>` | `rm` | Delete an account and its config dir |
+| `claude-accounts uninstall` | | Remove all managed aliases from .zshrc / .bashrc |
+| `claude-accounts help` | `--help`, `-h` | Show usage |
 
 ---
 
 ## How it works
 
-Claude Code stores its login session (API keys, preferences) in a config directory that defaults to `~/.claude`. By setting the `CLAUDE_CONFIG_DIR` environment variable, you can point it at any directory instead — each directory acts as a completely independent account.
+Claude Code stores its login session in `~/.claude` by default. Set `CLAUDE_CONFIG_DIR` to any path and Claude uses that directory instead — completely independent from any other account.
 
-`claude-accounts` gives each account its own folder under `~/.claude-accounts/<slug>/` and installs a shell function named `claude` that:
+`claude-accounts setup` automates all the manual steps:
 
-1. Reads `~/.claude-accounts/.active` to find the active account slug
-2. Reads `~/.claude-accounts/.binary` to find the real `claude` binary path
-3. Runs the real binary with `CLAUDE_CONFIG_DIR` set to that account's directory
+1. Finds your real `claude` binary path automatically
+2. Creates `~/.claude-accounts/<name>/` for each account
+3. Writes shell aliases to `.zshrc` / `.bashrc`:
+
+```bash
+alias claude-personal='CLAUDE_CONFIG_DIR=~/.claude-accounts/personal /usr/local/bin/claude'
+alias claude-work='CLAUDE_CONFIG_DIR=~/.claude-accounts/work /usr/local/bin/claude'
+alias claude='echo "Use a specific account: claude-personal, claude-work"'
+```
+
+The last alias overrides bare `claude` with a helpful reminder so you never accidentally launch the wrong account.
+
+---
+
+## Running accounts in parallel
+
+Open two terminal tabs and run a different account in each:
 
 ```
-User types: claude
-  → shell function runs
-  → reads ~/.claude-accounts/.active  → "personal"
-  → reads ~/.claude-accounts/.binary  → "/usr/local/bin/claude-real"
-  → runs: CLAUDE_CONFIG_DIR=~/.claude-accounts/personal /usr/local/bin/claude-real
+Tab 1                           Tab 2
+─────────────────────────────── ───────────────────────────────
+$ claude-personal               $ claude-work
+> working on side project       > working on client code
+  completely isolated session     completely isolated session
+```
+
+Both run simultaneously. One account hitting a rate limit doesn't affect the other — just switch tabs and keep going.
+
+---
+
+## Add more accounts
+
+```bash
+claude-accounts add freelance
+source ~/.zshrc
+claude-freelance   # then /login
 ```
 
 ---
 
-## Per-project usage
+## Per-project default account
 
-You can also pin a project to a specific account without switching your global active account. Add this to your project's `.env` file:
+Add this to your project's `.env` (works with `direnv` or similar):
 
 ```bash
 CLAUDE_CONFIG_DIR=~/.claude-accounts/work
 ```
 
-Claude Code will use the `work` account automatically when launched from that project directory (with a tool like `direnv` or by exporting the variable in your shell).
-
----
-
-## Directory layout
-
-```
-~/.claude-accounts/
-  .active          ← current active slug
-  .binary          ← path to real claude binary
-  registry.json    ← list of all accounts
-  personal/        ← config dir for "personal" account
-    *.json         ← session files written by Claude Code
-  work/            ← config dir for "work" account
-    *.json
-```
+Claude Code will automatically use the `work` account in that project.
 
 ---
 
 ## Uninstall
 
 ```bash
-# Remove the shell function from .zshrc / .bashrc
+# Remove aliases from .zshrc / .bashrc
 claude-accounts uninstall
 
 # Remove all account data (optional)
 rm -rf ~/.claude-accounts
 
-# Uninstall the npm package
+# Remove the npm package
 npm uninstall -g claude-accounts
 ```
 
@@ -115,12 +124,7 @@ npm uninstall -g claude-accounts
 
 Bug reports and pull requests welcome at [GitHub](https://github.com/pateldhruv-webdev/claudecode_account_switch).
 
-1. Fork the repo
-2. Create a feature branch: `git checkout -b my-feature`
-3. Commit your changes: `git commit -m 'Add my feature'`
-4. Push and open a pull request
-
-Please keep the code in plain JavaScript (ESM) with no build step and minimal dependencies.
+Keep it plain JavaScript (ESM), no build step, minimal dependencies.
 
 ---
 

@@ -2,8 +2,6 @@ import {
   cmdSetup,
   cmdAdd,
   cmdList,
-  cmdUse,
-  cmdStatus,
   cmdRemove,
   cmdUninstall,
   cmdHelp,
@@ -18,47 +16,29 @@ export async function run(argv) {
       case 'install':
         await cmdSetup();
         break;
-
       case 'add':
       case 'new':
       case 'create':
-        await cmdAdd();
+        await cmdAdd(args);
         break;
-
       case 'list':
       case 'ls':
         await cmdList();
         break;
-
-      case 'use':
-      case 'switch':
-      case 'activate':
-        await cmdUse(args);
-        break;
-
-      case 'status':
-      case 'current':
-      case 'whoami':
-        await cmdStatus();
-        break;
-
       case 'remove':
       case 'delete':
       case 'rm':
         await cmdRemove(args);
         break;
-
       case 'uninstall':
         await cmdUninstall();
         break;
-
       case 'help':
       case '--help':
       case '-h':
       case undefined:
         await cmdHelp();
         break;
-
       default:
         console.error(`Unknown command: ${command}`);
         console.error('Run: claude-accounts help');
