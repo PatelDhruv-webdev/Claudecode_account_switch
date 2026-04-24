@@ -4,7 +4,7 @@
   "description": "Run multiple Claude Code accounts simultaneously — each in its own isolated config directory",
   "type": "module",
   "bin": {
-    "claude-multi": "./bin/cli.js"
+    "claude-multi": "bin/cli.js"
   },
   "files": [
     "bin/",
