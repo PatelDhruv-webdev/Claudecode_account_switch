@@ -7,7 +7,7 @@ A CLI tool that automates the [multiple-Claude-accounts setup](https://medium.co
 ## Install
 
 ```bash
-npm install -g claude-multi
+npm install -g claude-code-multi
 ```
 
 ---
@@ -115,7 +115,7 @@ claude-multi uninstall
 rm -rf ~/.claude-multi
 
 # Remove the npm package
-npm uninstall -g claude-multi
+npm uninstall -g claude-code-multi
 ```
 
 ---

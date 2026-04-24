@@ -1,7 +1,7 @@
 {
-  "name": "claude-multi",
+  "name": "claude-code-multi",
   "version": "1.0.0",
-  "description": "Manage multiple Claude Code accounts simultaneously with isolated CLAUDE_CONFIG_DIR directories",
+  "description": "Run multiple Claude Code accounts simultaneously — each in its own isolated config directory",
   "type": "module",
   "bin": {
     "claude-multi": "./bin/cli.js"
@@ -18,6 +18,9 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "claude",
