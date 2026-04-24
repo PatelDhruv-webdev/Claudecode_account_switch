@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>claude-accounts — terminal animation preview</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0e0e0e;
+    color: #ccc;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Cascadia Code', monospace;
+    font-size: 13px;
+    line-height: 20px;
+    padding: 32px;
+  }
+
+  h1 { color: #eee; font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .subtitle { color: #555; font-size: 12px; margin-bottom: 40px; }
+
+  .lbl {
+    color: #555;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 28px 0 8px;
+  }
+
+  .terminal {
+    background: #1c1c1c;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+    max-width: 700px;
+  }
+
+  .bar {
+    background: #2c2c2c;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #222;
+  }
+  .dot  { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+  .rc   { background: #ff5f57; }
+  .yc   { background: #febc2e; }
+  .gc   { background: #28c840; }
+  .bname { color: #555; font-size: 11px; margin-left: 10px; }
+
+  pre.body {
+    padding: 18px 20px;
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 20px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* Robot pixel cells — each "pixel" is 2 chars wide × 1 line tall */
+  .r   { height: 20px; }
+  .p   { display: inline-block; width: 2ch; }
+  .e   { display: inline-block; width: 2ch; }          /* empty/transparent */
+  .s   { display: inline-block; }                       /* spacer */
+  .o   { background: #C97B5A; }                         /* Claude orange */
+  .d   { background: #2A1207; }                         /* dark eyes */
+  .f   { display: inline-block; background: #FFD700; }  /* flash yellow */
+  .gap { display: inline-block; width: 2ch; }
+
+  /* Setup output text */
+  .pline { height: 20px; }
+  .arrow { color: #4ec9b0; }
+  .ok    { color: #89d185; }
+  .dim   { color: #555; }
+  .out   { color: #ccc; }
+  .ask   { color: #ccc; }
+  .inp   { color: #e5c07b; }
+  .col   { color: #4ec9b0; }
+  .prompt { color: #c678dd; }
+  .title { color: #ffffff; font-weight: bold; font-style: normal; }
+  .ver   { color: #555; }
+  .sub   { color: #555; }
+</style>
+</head>
+<body>
+
+<h1>claude-accounts — animation preview</h1>
+<p class="subtitle">
+  What you see when you run <code>claude-accounts setup</code> in a truecolor terminal
+  (macOS Terminal · iTerm2 · VS Code · Windows Terminal)
+</p>
+
+
+  <p class="lbl">Frame 1 — Two robots start from edges</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body"><div class="r"><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:56ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:56ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:56ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="s" style="width:56ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="s" style="width:56ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:56ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div></pre>
+  </div>
+
+  <p class="lbl">Frame 5 — Sliding inward</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body"><div class="r"><span class="s" style="width:2ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:52ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:2ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:52ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:2ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:52ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:2ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="s" style="width:52ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:2ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="s" style="width:52ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:2ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:52ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div></pre>
+  </div>
+
+  <p class="lbl">Frame 10 — Halfway</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body"><div class="r"><span class="s" style="width:13ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:30ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:13ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:30ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:13ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:30ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:13ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="s" style="width:30ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:13ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="s" style="width:30ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:13ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:30ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div></pre>
+  </div>
+
+  <p class="lbl">Frame 17 — Almost touching</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body"><div class="r"><span class="s" style="width:27ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:2ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:27ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:2ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:27ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:2ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:27ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="s" style="width:2ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:27ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="s" style="width:2ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:27ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="s" style="width:2ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div></pre>
+  </div>
+
+  <p class="lbl">Frame 21 — Bodies merge (one solid block)</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body"><div class="r"><span class="s" style="width:28ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div></pre>
+  </div>
+
+  <p class="lbl">Frame 22 — Yellow flash ✦</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body"><div class="r"><span class="s" style="width:28ch"></span><span class="p f" style="width:24ch"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="p f" style="width:24ch"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="p f" style="width:24ch"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="p f" style="width:24ch"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="p f" style="width:24ch"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:28ch"></span><span class="p f" style="width:24ch"> &nbsp;</span></div></pre>
+  </div>
+
+  <p class="lbl">Frame 23 — Single robot (centered)</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body"><div class="r"><span class="s" style="width:34ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:34ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:34ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:34ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:34ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:34ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div></pre>
+  </div>
+
+  <p class="lbl">Frame 25 — Final: Claude Code–style display</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body"><div class="r"><span class="s" style="width:21ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:21ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="e"> &nbsp;</span><span class="gap"></span><b class="title">claude-accounts</b><span class="ver">  v1.0.0</span></div>
+<div class="r"><span class="s" style="width:21ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:21ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="gap"></span><span class="sub">manage multiple accounts</span></div>
+<div class="r"><span class="s" style="width:21ch"></span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p d"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="p o"> &nbsp;</span></div>
+<div class="r"><span class="s" style="width:21ch"></span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span><span class="e"> &nbsp;</span><span class="p o"> &nbsp;</span><span class="e"> &nbsp;</span></div></pre>
+  </div>
+
+  <p class="lbl">Then setup prompts appear below ↓</p>
+  <div class="terminal">
+    <div class="bar">
+      <span class="dot rc"></span><span class="dot yc"></span><span class="dot gc"></span>
+      <span class="bname">zsh — 80×24</span>
+    </div>
+    <pre class="body">
+      <div class="pline"><span class="arrow">  → </span><span class="out">Searching for Claude Code binary...</span></div>
+      <div class="pline"><span class="ok">  ✓ </span><span class="out">Found: /usr/local/bin/claude</span></div>
+      <div class="pline"> </div>
+      <div class="pline"><span class="prompt">  ? </span><span class="ask">Name for account 1 (e.g. "personal"):</span> <span class="inp">personal</span></div>
+      <div class="pline"><span class="prompt">  ? </span><span class="ask">Name for account 2 (e.g. "work"):</span> <span class="inp">work</span></div>
+      <div class="pline"> </div>
+      <div class="pline"><span class="ok">  ✓ </span><span class="out">Setup complete!</span></div>
+      <div class="pline"> </div>
+      <div class="pline"><span class="ok">  ✓ </span><span class="col">claude-personal</span><span class="dim">  →  ~/.claude-accounts/personal</span></div>
+      <div class="pline"><span class="ok">  ✓ </span><span class="col">claude-work</span><span class="dim">  →  ~/.claude-accounts/work</span></div>
+      <div class="pline"> </div>
+      <div class="pline"><span class="arrow">  → </span><span class="out">Shell aliases written to: <b>~/.zshrc</b></span></div>
+      <div class="pline"> </div>
+      <div class="pline"><span class="dim">    1. Reload your shell:      source ~/.zshrc</span></div>
+      <div class="pline"><span class="dim">    2. Authenticate account 1: claude-personal   then run  /login</span></div>
+      <div class="pline"><span class="dim">    3. Authenticate account 2: claude-work   then run  /login</span></div>
+      <div class="pline"><span class="dim">    4. Code in parallel:       open two terminal tabs!</span></div>
+</pre>
+  </div>
+
+</body>
+</html>

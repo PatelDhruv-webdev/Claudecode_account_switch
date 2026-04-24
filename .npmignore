@@ -2,3 +2,5 @@
 .gitignore
 *.log
 .DS_Store
+preview.js
+preview.html
